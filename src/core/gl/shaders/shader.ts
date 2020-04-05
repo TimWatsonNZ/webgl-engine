@@ -1,20 +1,13 @@
-import { gl } from "./gl";
+import { gl } from "../gl";
 
-export class Shader {
+export abstract class Shader {
   _name: string;
   _program: WebGLProgram;
   private _attributes: { [key: string]: number } = {};
   private _uniforms: { [key: string]: WebGLUniformLocation } = {};
 
-  constructor(name: string, vertexSource: string, fragmentSource: string) {
+  constructor(name: string) {
     this._name = name;
-    let vertexShader = this.loadShader(vertexSource, gl.VERTEX_SHADER);
-    let fragmentShader = this.loadShader(fragmentSource, gl.FRAGMENT_SHADER);
-  
-    this.createProgram(vertexShader, fragmentShader);
-
-    this.detectAttributes();
-    this.detectUniforms();
   }
 
   public get name(): string {
@@ -39,6 +32,16 @@ export class Shader {
 
   public use(): void {
     gl.useProgram(this._program);
+  }
+
+  protected load(vertexSource: string, fragmentSource: string): void {
+    let vertexShader = this.loadShader(vertexSource, gl.VERTEX_SHADER);
+    let fragmentShader = this.loadShader(fragmentSource, gl.FRAGMENT_SHADER);
+  
+    this.createProgram(vertexShader, fragmentShader);
+
+    this.detectAttributes();
+    this.detectUniforms();
   }
 
   private loadShader(source: string, shaderType: number): WebGLShader {

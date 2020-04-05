@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "cpx \"./index.html\" \"./dist\" | webpack",
+    "build": "cpx \"./assets\" \"./dist\"",
     "start": "webpack --watch",
-    "serve": "node server.ts"
+    "serve": "node server.ts",
+    "run": "start npm run start && start npm run serve"
   },
   "keywords": [],
   "author": "Tim Watson",
@@ -22,6 +23,10 @@
     "webpack-cli": "^3.3.2"
   },
   "devDependencies": {
-    "cpx": "^1.5.0"
+    "@types/html-webpack-plugin": "^3.2.2",
+    "cpx": "^1.5.0",
+    "css-loader": "^3.4.2",
+    "html-webpack-plugin": "^4.0.4",
+    "style-loader": "^1.1.3"
   }
 }

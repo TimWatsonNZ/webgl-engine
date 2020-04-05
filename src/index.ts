@@ -1,4 +1,5 @@
 import { Engine } from "./core/engine";
+import './index.css'
 
 let engine: Engine;
 window.onload = () => {
