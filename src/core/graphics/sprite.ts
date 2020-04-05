@@ -1,10 +1,10 @@
 import { GlBuffer, AttributeInfo } from "../gl/glBuffer";
 import { Vector3 } from "../math/vector3";
-import { Texture } from "./texture";
-import { TextureManager } from "./textureManager";
 import { Shader } from "../gl/shaders/shader";
 import { gl } from "../gl/gl";
 import { Matrix4x4 } from "../math/matrix4x4";
+import { Material } from "./material";
+import { MaterialManager } from "./materialManager";
 
 export class Sprite {
   _name: string;
@@ -12,18 +12,18 @@ export class Sprite {
   _height: number;
   _buffer: GlBuffer;
 
-  private _textureName: string;
-  private _texture: Texture;
+  private _materialName: string;
+  private _material: Material;
 
   public position: Vector3 = new Vector3();
 
-  constructor(name: string, textureName: string, width: number = 10, height: number = 10) {
+  constructor(name: string, materialName: string, width: number = 10, height: number = 10) {
     this._name = name;
     this._width = width;
     this._height = height;
 
-    this._textureName = textureName;
-    this._texture = TextureManager.getTexture(textureName);
+    this._materialName = materialName;
+    this._material = MaterialManager.getMaterial(materialName);
   }
 
   public get name(): string {
@@ -32,7 +32,9 @@ export class Sprite {
 
   public destroy(): void {
     this._buffer.destroy();
-    TextureManager.releaseTexture(this._textureName);
+    MaterialManager.releaseMaterial(this._materialName);
+    this._material = undefined; 
+    this._materialName = undefined;
   }
 
   public load(): void {
@@ -77,11 +79,14 @@ export class Sprite {
     gl.uniformMatrix4fv(modelLocation, false, new Float32Array(Matrix4x4.translation(this.position).data));
     
     const colorLocation = shader.getUniformLocation('u_tint');
-    gl.uniform4f(colorLocation, 1, 1, 1, 1);
+    gl.uniform4fv(colorLocation, this._material.tint.toFloat32Array());
 
-    this._texture.activateAndBind(0);
-    const diffuseLocation = shader.getUniformLocation('u_diffuse');
-    gl.uniform1i(diffuseLocation, 0);
+    if (this._material.diffuseTexture !== undefined) {
+      this._material.diffuseTexture.activateAndBind(0);
+    
+      const diffuseLocation = shader.getUniformLocation('u_diffuse');
+      gl.uniform1i(diffuseLocation, 0);
+    }
 
     this._buffer.bind();
     this._buffer.draw();
