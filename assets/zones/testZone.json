@@ -1,0 +1,54 @@
+{
+  "name": "TestZone",
+  "description": "A simple zone for testing",
+  "id": 0,
+  "objects": [
+    {
+      "name": "parentObject",
+      "transform": {
+        "position": {
+          "x": 300,
+          "y": 300
+        },
+        "scale": {
+          "x": 10,
+          "y": 10
+        }
+      },
+      "children": [
+        {
+          "name": "testObject",
+          "transform": {
+            "position": {
+              "x": 10,
+              "y": 10
+            }
+          },
+          "components": [
+            {
+              "name": "test-child",
+              "type": "sprite",
+              "materialName": "crate"
+            }
+          ]
+        }
+      ],
+      "components": [
+        {
+          "name": "test",
+          "type": "sprite",
+          "materialName": "crate"
+        }
+      ],
+      "behaviours": [
+        {
+          "name": "rotateX",
+          "type": "rotation",
+          "rotation": {
+            "z": 0.01
+          }
+        }
+      ]
+    }
+  ]
+}

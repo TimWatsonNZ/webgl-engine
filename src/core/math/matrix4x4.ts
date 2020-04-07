@@ -51,6 +51,34 @@ export class Matrix4x4 {
     return m;
   }
 
+  public static rotationX(radians: number): Matrix4x4 {
+    const m = new Matrix4x4();
+
+    const c = Math.cos(radians);
+    const s = Math.sin(radians);
+
+    m._data[5] = c;
+    m._data[6] = s;
+    m._data[9] = -s;
+    m._data[10] = c;
+
+    return m;
+  }
+
+  public static rotationY(radians: number): Matrix4x4 {
+    const m = new Matrix4x4();
+
+    const c = Math.cos(radians);
+    const s = Math.sin(radians);
+
+    m._data[0] = c;
+    m._data[2] = -s;
+    m._data[8] = s;
+    m._data[10] = c;
+
+    return m;
+  }
+
   public static rotationZ(radians: number): Matrix4x4 {
     const m = new Matrix4x4();
 
@@ -59,10 +87,18 @@ export class Matrix4x4 {
 
     m._data[0] = c;
     m._data[1] = s;
-    m._data[5] = -s;
-    m._data[6] = c;
+    m._data[4] = -s;
+    m._data[5] = c;
 
     return m;
+  }
+
+  public static rotationXYZ(xRadians: number, yRadians: number, zRadians: number): Matrix4x4 {
+    const rx = Matrix4x4.rotationX(xRadians);
+    const ry = Matrix4x4.rotationY(yRadians);
+    const rz = Matrix4x4.rotationZ(zRadians);
+
+    return Matrix4x4.multiply(Matrix4x4.multiply(rz, ry), rx);
   }
 
   public static scale(scale: Vector3): Matrix4x4 {
@@ -129,5 +165,15 @@ export class Matrix4x4 {
     m._data[15] = b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33;
 
     return m;
+  }
+
+  public toFloat32Array(): Float32Array {
+    return new Float32Array(this._data);
+  }
+
+  public copyFrom(m: Matrix4x4): void {
+    for (let i =0;i < 16;i++) {
+      this._data[i] = m._data[i];
+    }
   }
 }

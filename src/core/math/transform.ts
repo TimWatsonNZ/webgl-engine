@@ -16,9 +16,21 @@ export class Transform {
 
   public getTransformationMatrix(): Matrix4x4 {
     const translation = Matrix4x4.translation(this.position);
-    const rotation = Matrix4x4.rotationZ(this.rotation.z);
+    const rotation = Matrix4x4.rotationXYZ(this.rotation.x, this.rotation.y, this.rotation.z);
     const scale = Matrix4x4.scale(this.scale);
 
     return Matrix4x4.multiply(Matrix4x4.multiply(translation, rotation), scale);
+  }
+
+  public setFromJson(json: any): void {
+    if (json.position !== undefined) {
+      this.position.setFromJson(json.position);
+    }
+    if (json.rotation !== undefined) {
+      this.rotation.setFromJson(json.rotation);
+    }
+    if (json.scale !== undefined) {
+      this.scale.setFromJson(json.scale);
+    }
   }
 }

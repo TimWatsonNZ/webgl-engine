@@ -1,5 +1,4 @@
 import { GlBuffer, AttributeInfo } from "../gl/glBuffer";
-import { Vector3 } from "../math/vector3";
 import { Shader } from "../gl/shaders/shader";
 import { gl } from "../gl/gl";
 import { Matrix4x4 } from "../math/matrix4x4";
@@ -14,8 +13,6 @@ export class Sprite {
 
   private _materialName: string;
   private _material: Material;
-
-  public position: Vector3 = new Vector3();
 
   constructor(name: string, materialName: string, width: number = 10, height: number = 10) {
     this._name = name;
@@ -74,9 +71,9 @@ export class Sprite {
 
   }
 
-  public draw(shader: Shader): void {
+  public draw(shader: Shader, model: Matrix4x4): void {
     const modelLocation = shader.getUniformLocation('u_model');
-    gl.uniformMatrix4fv(modelLocation, false, new Float32Array(Matrix4x4.translation(this.position).data));
+    gl.uniformMatrix4fv(modelLocation, false, model.toFloat32Array());
     
     const colorLocation = shader.getUniformLocation('u_tint');
     gl.uniform4fv(colorLocation, this._material.tint.toFloat32Array());

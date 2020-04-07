@@ -2,6 +2,7 @@ import { IAssetLoader } from "./IAssetLoader";
 import { IAsset } from "./IAsset";
 import { Message } from "../message/message";
 import { ImageAssetLoader } from "./imageAssetLoader";
+import { JsonAssetLoader } from "./jsonAssetLoader";
 
 export const MESSAGE_ASSET_LOADER_ASSET_LOADED = 'MESSAGE_ASSET_LOADER_ASSET_LOADED::';
 
@@ -16,6 +17,7 @@ export class AssetManager {
 
   public static initialize(): void {
     AssetManager._loaders.push(new ImageAssetLoader());
+    AssetManager._loaders.push(new JsonAssetLoader());
   }
 
   public static onAssetLoaded(asset: IAsset): void {
@@ -28,7 +30,7 @@ export class AssetManager {
     AssetManager._loaders.push(loader);
   }
 
-  public static loadAssert(assetName: string): void {
+  public static loadAsset(assetName: string): void {
     const extension = assetName.split('.').pop().toLocaleUpperCase();
     for (let l of AssetManager._loaders) {
       if (l.supportedExtensions.indexOf(extension.toLowerCase()) !== -1) {
@@ -48,7 +50,7 @@ export class AssetManager {
     if (AssetManager._loadedAssets[assetName] !== undefined) {
       return AssetManager._loadedAssets[assetName];
     } else {
-      AssetManager.loadAssert(assetName);
+      AssetManager.loadAsset(assetName);
     }
 
     return undefined;

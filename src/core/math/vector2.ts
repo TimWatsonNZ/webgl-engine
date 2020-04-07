@@ -30,4 +30,13 @@ export class Vector2 {
   public toFloat32Array(): Float32Array {
     return new Float32Array(this.toFloat32Array());
   }
+
+  public setFromJson(json: any): void {
+    if (json.x !== undefined) {
+      this.x = Number(json.x);
+    }
+    if (json.y !== undefined) {
+      this.y = Number(json.y);
+    }
+  }
 }
