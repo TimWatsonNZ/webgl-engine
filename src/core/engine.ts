@@ -1,5 +1,4 @@
 import { GlUtilities, gl } from "./gl/gl";
-import { Sprite } from "./graphics/sprite";
 import { Matrix4x4 } from "./math/matrix4x4";
 import { MessageBus } from "./message/messageBus";
 import { AssetManager } from "./assets/assetManager";
@@ -13,7 +12,7 @@ export class Engine {
   private _canvas: HTMLCanvasElement;
   private _basicShader: BasicShader;
   private _projection: Matrix4x4;
-
+  private _previousTime = 0;
   
   constructor() {
 
@@ -25,12 +24,14 @@ export class Engine {
     ZoneManager.initialize();
 
     gl.clearColor(0, 0, 0, 1);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     this._basicShader = new BasicShader();
     this._basicShader.use();
 
-    MaterialManager.registerMaterial(new Material('crate', 'textures/crate.png', new Color(0,128,255,255)));
-    
+    MaterialManager.registerMaterial(new Material('crate', 'textures/crate.png', Color.white()));
+    MaterialManager.registerMaterial(new Material('duck', 'textures/duck.png', Color.white()));
     this._projection = Matrix4x4.orthographic(
       0, this._canvas.width, this._canvas.height, 0, -100.0, 100
     );
@@ -54,10 +55,20 @@ export class Engine {
   }
 
   private loop(): void {
-    MessageBus.update(0);
+    this.update();
+    this.render();
 
-    ZoneManager.update(0);
+    requestAnimationFrame(this.loop.bind(this));
+  }
 
+  private update(): void {
+    const delta = performance.now() - this._previousTime;
+    MessageBus.update(delta);
+    ZoneManager.update(delta);
+    this._previousTime = performance.now();
+  }
+
+  private render(): void {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     ZoneManager.render(this._basicShader);
@@ -65,6 +76,5 @@ export class Engine {
     const projectionPosition = this._basicShader.getUniformLocation('u_projection');
     gl.uniformMatrix4fv(projectionPosition, false, new Float32Array(this._projection.data));
     
-    requestAnimationFrame(this.loop.bind(this));
   }
 }

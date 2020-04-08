@@ -3,8 +3,6 @@ import { BaseComponent } from "./baseComponent";
 import { Shader } from "../gl/shaders/shader";
 import { IComponentData } from "./IComponentData";
 import { IComponentBuilder } from "./IComponentBuilder";
-import { IComponent } from "./IComponent";
-import { ComponentManager } from "./ComponentManager";
 
 export class SpriteComponentData implements IComponentData {
   public name: string;

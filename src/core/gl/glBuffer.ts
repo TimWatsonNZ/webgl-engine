@@ -3,7 +3,7 @@ import { gl } from "./gl";
 export class AttributeInfo {
   public location: number;
   public size: number;
-  public offset: number;
+  public offset: number = 0;
 }
 
 export class GlBuffer {
@@ -21,13 +21,12 @@ export class GlBuffer {
   private _attributes: AttributeInfo[] = [];
 
   public constructor(
-    elementSize: number,
     dataType: number = gl.FLOAT,
     targetBufferType: number = gl.ARRAY_BUFFER,
     mode: number = gl.TRIANGLES,
 
     ) {
-      this._elementSize = elementSize;
+      this._elementSize = 0;
       this._dataType = dataType;
       this._targetBufferType = targetBufferType
       this._mode = mode;
@@ -50,7 +49,6 @@ export class GlBuffer {
           throw new Error(`Unrecognised data type: ${dataType.toString()}`);
       }
 
-      this._stride = this._elementSize * this._typeSize;
       this._buffer = gl.createBuffer();
       
   }
@@ -76,16 +74,28 @@ export class GlBuffer {
     }
     gl.bindBuffer(this._targetBufferType, undefined);
   }
-
+ 
   public addAttributeLocation(info: AttributeInfo): void {
     this._hasAttributeLocation = true;
+    info.offset = this._elementSize;
     this._attributes.push(info);
+    this._elementSize += info.size;
+    this._stride = this._elementSize * this._typeSize;
+  }
+
+  public setData(data: number[]) {
+    this.clearData();
+    this.pushBackData(data);
   }
 
   public pushBackData(data: number[]): void {
     for (let d of data) {
       this._data.push(d);
     }
+  }
+
+  public clearData(): void {
+    this._data.length = 0;
   }
 
   public upload(): void {

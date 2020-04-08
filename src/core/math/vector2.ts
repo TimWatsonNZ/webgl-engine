@@ -23,6 +23,19 @@ export class Vector2 {
     this._y = n;
   }
 
+  public static get zero(): Vector2 {
+    return new Vector2();
+  }
+
+  public static get one(): Vector2 {
+    return new Vector2(1,1);
+  }
+
+  public copyFrom(v: Vector2): void {
+    this.x = v.x;
+    this.y = v.y;
+  }
+
   public toArray(): number[] {
     return [this._x, this._y];
   }

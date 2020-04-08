@@ -1,6 +1,5 @@
 import { Zone } from "./zone";
 import { Shader } from "../gl/shaders/shader";
-import { TestZone } from "./TestZone";
 import { AssetManager, MESSAGE_ASSET_LOADER_ASSET_LOADED } from "../assets/assetManager";
 import { JsonAsset } from "../assets/jsonAssetLoader";
 import { IMessageHandler } from "../message/IMessageHandler";
