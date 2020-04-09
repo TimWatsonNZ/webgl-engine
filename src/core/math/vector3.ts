@@ -41,8 +41,34 @@ export class Vector3 {
     return new Vector3(1,1,1);
   }
 
+  public set(x?: number, y?: number, z?: number): void {
+    if (x !== undefined) {
+      this._x = x;
+    }
+    if (y !== undefined) {
+      this._y = y;
+    }
+    if (z !== undefined) {
+      this._z = z;
+    }
+  }
+
   public toArray(): number[] {
     return [this._x, this._y, this._z];
+  }
+
+  public equals(v: Vector3): boolean {
+    return (
+      this.x === v.x && 
+      this.y === v.y &&
+      this.z === v.z
+    );
+  }
+
+  public static distance(a: Vector3, b: Vector3): number {
+    const diff = a.subtract(b);
+
+    return Math.sqrt(diff.x * diff.x + diff.y * diff.y + diff.z*diff.z);
   }
 
   public toFloat32Array(): Float32Array {

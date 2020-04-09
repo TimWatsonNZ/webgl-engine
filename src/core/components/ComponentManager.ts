@@ -2,6 +2,7 @@ import { IComponentBuilder } from "./IComponentBuilder";
 import { IComponent } from "./IComponent";
 import { SpriteComponentBuilder } from "./spriteComponent";
 import { AnimatedSpriteComponentBuilder } from "./animatedSpriteComponent";
+import { CollisionComponentBuilder } from "./collisionComponent";
 
 export class ComponentManager {
   private static _registeredBuilders: { [key: string]: IComponentBuilder } = {};
@@ -23,3 +24,4 @@ export class ComponentManager {
 
 ComponentManager.registerBuilder(new SpriteComponentBuilder());
 ComponentManager.registerBuilder(new AnimatedSpriteComponentBuilder());
+ComponentManager.registerBuilder(new CollisionComponentBuilder());

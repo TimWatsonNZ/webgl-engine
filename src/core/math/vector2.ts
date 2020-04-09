@@ -36,6 +36,12 @@ export class Vector2 {
     this.y = v.y;
   }
 
+  public static distance(a: Vector2, b: Vector2): number {
+    const diff = a.subtract(b);
+
+    return Math.sqrt(diff.x * diff.x + diff.y * diff.y);
+  }
+
   public toArray(): number[] {
     return [this._x, this._y];
   }
@@ -51,5 +57,33 @@ export class Vector2 {
     if (json.y !== undefined) {
       this.y = Number(json.y);
     }
+  }
+  
+  public add(v: Vector2): Vector2 {
+    this._x += v._x;
+    this._y += v._y;
+    
+    return this;
+  }
+
+  public subtract(v: Vector2): Vector2 {
+    this._x -= v._x;
+    this._y -= v._y;
+    
+    return this;
+  }
+
+  public multiply (v: Vector2): Vector2 {
+    this._x *= v._x;
+    this._y *= v._y;
+    
+    return this;
+  }
+
+  public divide(v: Vector2): Vector2 {
+    this._x /= v._x;
+    this._y /= v._y;
+    
+    return this;
   }
 }
