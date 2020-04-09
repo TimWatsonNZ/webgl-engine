@@ -31,7 +31,6 @@ export class RotationBehaviourBuilder implements IBehaviourBuilder {
     data.setFromJson(json);
     return new RotationBehaviour(data);
   }
-
 }
 
 export class RotationBehaviour extends BaseBehaviour {

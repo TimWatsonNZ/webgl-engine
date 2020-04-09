@@ -2,7 +2,6 @@ import { Transform } from "../math/transform";
 import { Matrix4x4 } from "../math/matrix4x4";
 import { Shader } from "../gl/shaders/shader";
 import { Scene } from "./scene";
-import { BaseComponent } from "../components/baseComponent";
 import { IComponent } from "../components/IComponent";
 import { IBehaviour } from "../behaviours/IBehaviour";
 

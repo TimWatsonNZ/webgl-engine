@@ -47,7 +47,7 @@ export class AnimatedSprite extends Sprite implements IMessageHandler {
     this._frameCount = frameCount;
     this._frameSequence = frameSequence;
 
-    Message.subscribe(MESSAGE_ASSET_LOADER_ASSET_LOADED + this._material.diffuseTextureName, this)
+    Message.subscribe(MESSAGE_ASSET_LOADER_ASSET_LOADED + this._material.diffuseTextureName, this);
   }
 
   public destroy(): void {
@@ -55,6 +55,9 @@ export class AnimatedSprite extends Sprite implements IMessageHandler {
   }
 
   public onMessage(message: Message): void {
+    console.log("ON MESSAGE");
+    console.log(message.code);
+    console.log( `${MESSAGE_ASSET_LOADER_ASSET_LOADED}${this._material.diffuseTextureName}`);
     if (message.code === `${MESSAGE_ASSET_LOADER_ASSET_LOADED}${this._material.diffuseTextureName}`) {
       this._assetLoaded = true;
       const asset = message.context as ImageAsset;

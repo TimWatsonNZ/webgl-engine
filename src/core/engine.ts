@@ -1,14 +1,18 @@
 import { GlUtilities, gl } from "./gl/gl";
 import { Matrix4x4 } from "./math/matrix4x4";
 import { MessageBus } from "./message/messageBus";
-import { AssetManager } from "./assets/assetManager";
+import { AssetManager, MESSAGE_ASSET_LOADER_ASSET_LOADED } from "./assets/assetManager";
 import { BasicShader } from "./gl/shaders/basicShader";
 import { MaterialManager } from "./graphics/materialManager";
 import { Material } from "./graphics/material";
 import { Color } from "./graphics/colors";
 import { ZoneManager } from "./world/zoneManager";
+import { InputManager, MouseContext } from "./input/inputManager";
+import { Message } from "./message/message";
+import { IMessageHandler } from "./message/IMessageHandler";
+import { AudioManager } from "./audio/audioManager";
 
-export class Engine {
+export class Engine implements IMessageHandler {
   private _canvas: HTMLCanvasElement;
   private _basicShader: BasicShader;
   private _projection: Matrix4x4;
@@ -20,8 +24,11 @@ export class Engine {
 
   public start(): void {
     this._canvas = GlUtilities.initialize();
-    AssetManager.initialize();
     ZoneManager.initialize();
+    AssetManager.initialize();
+    InputManager.initialize();
+
+    Message.subscribe('MOUSE_UP', this);
 
     gl.clearColor(0, 0, 0, 1);
     gl.enable(gl.BLEND);
@@ -32,6 +39,9 @@ export class Engine {
 
     MaterialManager.registerMaterial(new Material('crate', 'textures/crate.png', Color.white()));
     MaterialManager.registerMaterial(new Material('duck', 'textures/duck.png', Color.white()));
+    
+    AudioManager.loadSoundFile('flap', 'sounds/flap.mp3', false);
+    
     this._projection = Matrix4x4.orthographic(
       0, this._canvas.width, this._canvas.height, 0, -100.0, 100
     );
@@ -51,6 +61,15 @@ export class Engine {
         0, this._canvas.width, this._canvas.height, 0, -100.0, 100
       );
       gl.viewport(-1, 1, this._canvas.width, this._canvas.height);
+    }
+  }
+
+  onMessage(message: Message): void {
+    if (message.code === "MOUSE_UP") {
+      const context = message.context as MouseContext;
+      document.title = `Position: {${context.position.x}}, {${context.position.y}}`
+    
+      AudioManager.playSound('flap');
     }
   }
 
