@@ -1,8 +1,11 @@
 import { IShape2D } from "./IShape2D";
 import { Vector2 } from "../../math/vector2";
+import { Circle2D } from "./circle2D";
 
 export class Rectangle2D implements IShape2D {
   public position: Vector2 = Vector2.zero;
+
+  public offset: Vector2 = Vector2.zero;
 
   public width: number;
 
@@ -11,6 +14,10 @@ export class Rectangle2D implements IShape2D {
   public setFromJson(json: any): void {
     if (json.position !== undefined) {
       this.position.setFromJson(json.position);
+    }
+
+    if (json.offset !== undefined) {
+      this.offset.setFromJson(json.offset);
     }
 
     if (json.width === undefined) {
@@ -36,16 +43,16 @@ export class Rectangle2D implements IShape2D {
       ) {
         return true;
       }
+    }
 
-      if (other instanceof Rectangle2D) {
-        if (
-          this.pointInShape(this.position) || 
-          this.pointInShape(new Vector2(this.position.x + this.width, this.position.y)) ||
-          this.pointInShape(new Vector2(this.position.x + this.width, this.position.y + this.height)) ||
-          this.pointInShape(new Vector2(this.position.x, this.position.y + this.height))
-        ) {
-          return true;
-        }
+    if (other instanceof Circle2D) {
+      if (
+        other.pointInShape(this.position) || 
+        other.pointInShape(new Vector2(this.position.x + this.width, this.position.y)) ||
+        other.pointInShape(new Vector2(this.position.x + this.width, this.position.y + this.height)) ||
+        other.pointInShape(new Vector2(this.position.x, this.position.y + this.height))
+      ) {
+        return true;
       }
     }
 

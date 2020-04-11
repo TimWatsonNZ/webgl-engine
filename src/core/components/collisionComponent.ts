@@ -6,6 +6,9 @@ import { IComponentBuilder } from "./IComponentBuilder";
 import { IShape2D } from "../graphics/shape2D.ts/IShape2D";
 import { Rectangle2D } from "../graphics/shape2D.ts/rectangle2d";
 import { Circle2D } from "../graphics/shape2D.ts/circle2D";
+import { Vector2 } from "../math/vector2";
+import { Shader } from "../gl/shaders/shader";
+import { CollisionManager } from "../collision/collisionManager";
 
 export class CollisionComponentData implements IComponentData {
   public name: string;
@@ -63,5 +66,34 @@ export class CollisionComponent extends BaseComponent {
 
   public get shape(): IShape2D {
     return this._shape;
+  }
+
+  public load(): void {
+    super.load();
+
+    this._shape.position.copyFrom(this.owner.transform.position.toVector2().add(this._shape.offset));
+    CollisionManager.registerCollisionComponent(this);
+  }
+
+  public update(time: number): void {
+    this._shape.position.copyFrom(this.owner.transform.position.toVector2().add(this._shape.offset));
+
+    super.update(time);
+  }
+
+  public render(shader: Shader): void {
+    super.render(shader);
+  }
+
+  public onCollisionEntry(other: CollisionComponent): void {
+
+  }
+
+  public onCollisionUpdate(other: CollisionComponent): void {
+    console.log('CollisionUpdate');
+  }
+
+  public onCollisionExit(other: CollisionComponent): void {
+    console.log('CollisionExit');
   }
 }

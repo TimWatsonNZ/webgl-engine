@@ -11,6 +11,7 @@ import { InputManager, MouseContext } from "./input/inputManager";
 import { Message } from "./message/message";
 import { IMessageHandler } from "./message/IMessageHandler";
 import { AudioManager } from "./audio/audioManager";
+import { CollisionManager } from "./collision/collisionManager";
 
 export class Engine implements IMessageHandler {
   private _canvas: HTMLCanvasElement;
@@ -67,8 +68,6 @@ export class Engine implements IMessageHandler {
   onMessage(message: Message): void {
     if (message.code === "MOUSE_UP") {
       const context = message.context as MouseContext;
-      document.title = `Position: {${context.position.x}}, {${context.position.y}}`
-    
       AudioManager.playSound('flap');
     }
   }
@@ -84,6 +83,7 @@ export class Engine implements IMessageHandler {
     const delta = performance.now() - this._previousTime;
     MessageBus.update(delta);
     ZoneManager.update(delta);
+    CollisionManager.update(delta);
     this._previousTime = performance.now();
   }
 

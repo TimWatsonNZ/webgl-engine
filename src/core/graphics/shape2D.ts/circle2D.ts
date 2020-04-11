@@ -2,7 +2,9 @@ import { IShape2D } from "./IShape2D";
 import { Vector2 } from "../../math/vector2";
 
 export class Circle2D implements IShape2D {
-  public position: Vector2;
+  public position: Vector2 = Vector2.zero;
+
+  public offset: Vector2 = Vector2.zero;
 
   public radius: number;
 
@@ -11,8 +13,12 @@ export class Circle2D implements IShape2D {
       this.position.setFromJson(json.position);
     }
 
+    if (json.offset !== undefined) {
+      this.offset.setFromJson(json.offset);
+    }
+
     if (json.radius === undefined) {
-      throw new Error(`Circle2D requires radius to be present`)
+      throw new Error(`Circle2D requires radius to be present`);
     }
 
     this.radius = Number(json.radius);

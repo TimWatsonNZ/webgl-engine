@@ -13,7 +13,7 @@ export abstract class BaseComponent {
   }
 
   public get owner(): SimObject {
-    return this.owner;
+    return this._owner;
   }
 
   public setOwner(owner: SimObject): void {

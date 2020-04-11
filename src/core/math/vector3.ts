@@ -1,3 +1,5 @@
+import { Vector2 } from "./vector2";
+
 export class Vector3 {
   private _x: number;
   private _y: number;
@@ -123,5 +125,13 @@ export class Vector3 {
     this._z /= v._z;
     
     return this;
+  }
+
+  public clone(): Vector3 {
+    return new Vector3(this._x, this._y, this._z);
+  }
+
+  public toVector2(): Vector2 {
+    return new Vector2(this._x, this._y);
   }
 }
