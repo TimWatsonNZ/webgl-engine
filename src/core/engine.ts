@@ -18,35 +18,54 @@ export class Engine implements IMessageHandler {
   private _basicShader: BasicShader;
   private _projection: Matrix4x4;
   private _previousTime = 0;
-  
-  constructor() {
 
+  private _gameWidth: number;
+  private _gameHeight: number;
+  
+  constructor(width?: number, height?: number) {
+    this._gameWidth = width;
+    this._gameHeight = height;
   }
 
   public start(): void {
     this._canvas = GlUtilities.initialize();
+
+    if (this._gameWidth && this._gameHeight) {
+      this._canvas.style.width = this._gameWidth + 'px';
+      this._canvas.style.height = this._gameHeight + 'px';
+      this._canvas.width = this._gameWidth;
+      this._canvas.height = this._gameHeight;
+    }
+
     ZoneManager.initialize();
     AssetManager.initialize();
     InputManager.initialize();
 
     Message.subscribe('MOUSE_UP', this);
 
-    gl.clearColor(0, 0, 0, 1);
+    gl.clearColor(146/255, 206/255, 247/255, 1);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     this._basicShader = new BasicShader();
     this._basicShader.use();
 
-    MaterialManager.registerMaterial(new Material('crate', 'textures/crate.png', Color.white()));
+    MaterialManager.registerMaterial(new Material('bg', 'textures/bg.png', Color.white()));
+    MaterialManager.registerMaterial(new Material('end', 'textures/end.png', Color.white()));
+    MaterialManager.registerMaterial(new Material('middle', 'textures/middle.png', Color.white()));
+
+    MaterialManager.registerMaterial(new Material('grass', 'textures/grass.png', Color.white()));
     MaterialManager.registerMaterial(new Material('duck', 'textures/duck.png', Color.white()));
     
     AudioManager.loadSoundFile('flap', 'sounds/flap.mp3', false);
+    AudioManager.loadSoundFile('ting', 'sounds/ting.mp3', false);
+    AudioManager.loadSoundFile('dead', 'sounds/dead.mp3', false);
     
     this._projection = Matrix4x4.orthographic(
       0, this._canvas.width, this._canvas.height, 0, -100.0, 100
     );
 
+    global.Message = Message;
     ZoneManager.changeZone(0);
 
     this.resize();
@@ -55,8 +74,11 @@ export class Engine implements IMessageHandler {
 
   public resize() {
     if (this._canvas) {
-      this._canvas.width = window.innerWidth;
-      this._canvas.height = window.innerHeight;
+      if (this._gameWidth === undefined || this._gameHeight === undefined) {
+        this._canvas.width = window.innerWidth;
+        this._canvas.height = window.innerHeight;
+      }
+      
 
       this._projection = Matrix4x4.orthographic(
         0, this._canvas.width, this._canvas.height, 0, -100.0, 100
@@ -68,7 +90,6 @@ export class Engine implements IMessageHandler {
   onMessage(message: Message): void {
     if (message.code === "MOUSE_UP") {
       const context = message.context as MouseContext;
-      AudioManager.playSound('flap');
     }
   }
 

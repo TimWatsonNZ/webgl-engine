@@ -4,6 +4,7 @@ import { Shader } from "../gl/shaders/shader";
 import { Scene } from "./scene";
 import { IComponent } from "../components/IComponent";
 import { IBehaviour } from "../behaviours/IBehaviour";
+import { Vector3 } from "../math/vector3";
 
 export class SimObject {
   private _id: number;
@@ -57,6 +58,41 @@ export class SimObject {
     }
   }
 
+  public getComponentByName(name: string): IComponent {
+
+    for (let component of this._components) {
+      if (component.name === name) {
+        return component;
+      }
+    }
+
+    for (let child of this._children) {
+      const component = child.getComponentByName(name);
+      if (component !== undefined) {
+        return component;
+      }
+    }
+
+    return undefined;
+  }
+
+  public getBehaviourByName(name: string): IBehaviour {
+    for (let behaviour of this._behaviours) {
+      if (behaviour.name === name) {
+        return behaviour;
+      }
+    }
+
+    for (let child of this._children) {
+      const behaviour = child.getBehaviourByName(name);
+      if (behaviour !== undefined) {
+        return behaviour;
+      }
+    }
+
+    return undefined;
+  }
+
   public getObjectByName(name: string): SimObject {
     if (this.name === name) {
       return this;
@@ -91,6 +127,20 @@ export class SimObject {
 
     for (let c of this._children) {
       c.load();
+    }
+  }
+
+  public updateReady(): void {
+    for (let c of this._components) {
+      c.updateReady();
+    }
+
+    for (let b of this._behaviours) {
+      b.updateReady();
+    }
+
+    for (let c of this._children) {
+      c.updateReady();
     }
   }
 
@@ -131,5 +181,9 @@ export class SimObject {
     } else {
       this._worldMatrix.copyFrom(this._localMatrix);
     }
+  }
+  
+  public getWorldPosition(): Vector3 {
+    return new Vector3( this._worldMatrix.data[12], this._worldMatrix.data[13], this._worldMatrix.data[14] );
   }
 }

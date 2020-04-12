@@ -2,8 +2,9 @@ import { Sprite } from "./sprite";
 import { Vector2 } from "../math/vector2";
 import { IMessageHandler } from "../message/IMessageHandler";
 import { Message } from "../message/message";
-import { MESSAGE_ASSET_LOADER_ASSET_LOADED } from "../assets/assetManager";
+import { MESSAGE_ASSET_LOADER_ASSET_LOADED, AssetManager } from "../assets/assetManager";
 import { ImageAsset } from "../assets/imageAssetLoader";
+import { MaterialManager } from "./materialManager";
 
 class UVInfo {
   public min: Vector2;
@@ -30,6 +31,8 @@ export class AnimatedSprite extends Sprite implements IMessageHandler {
   private _assetWidth: number = 2;
   private _assetHeight: number = 2;
 
+  private _isPlaying: boolean = true;
+
   constructor(
     name: string,
     materialName: string,
@@ -50,12 +53,31 @@ export class AnimatedSprite extends Sprite implements IMessageHandler {
     Message.subscribe(MESSAGE_ASSET_LOADER_ASSET_LOADED + this._material.diffuseTextureName, this);
   }
 
+  public get isPlaying(): boolean {
+    return this._isPlaying;
+  }
+
   public destroy(): void {
     super.destroy();
   }
 
+  public play(): void {
+    this._isPlaying = true;
+  }
+
+  public stop(): void {
+    this._isPlaying = false;
+  }
+
+  public setFrame(frameNumber: number): void {
+    if (frameNumber >= this._frameCount || frameNumber < 0) {
+      throw new Error("Frame is out of range.");
+    }
+
+    this._currentFrame = frameNumber;
+  }
+
   public onMessage(message: Message): void {
-    console.log("ON MESSAGE");
     console.log(message.code);
     console.log( `${MESSAGE_ASSET_LOADER_ASSET_LOADED}${this._material.diffuseTextureName}`);
     if (message.code === `${MESSAGE_ASSET_LOADER_ASSET_LOADED}${this._material.diffuseTextureName}`) {
@@ -69,11 +91,20 @@ export class AnimatedSprite extends Sprite implements IMessageHandler {
 
   public load(): void {
     super.load();
+
+    if (!this._assetLoaded) {
+      this.setupFromMaterial();
+    } 
   }
 
   public update(time: number): void {
-    if (!this._assetLoaded) return;
-    
+    if (!this._assetLoaded) {
+      this.setupFromMaterial();
+      return;
+    }
+
+    if (!this.isPlaying) return;
+
     this._currentTime += time;
     if (this._currentTime > this._frameTime) {
       this._currentFrame++;
@@ -143,6 +174,21 @@ export class AnimatedSprite extends Sprite implements IMessageHandler {
       const max: Vector2 = new Vector2(uMax, vMax);
 
       this._frameUVs.push(new UVInfo(min, max));
+    }
+  }
+
+  private setupFromMaterial(): void {
+    if (!this._assetLoaded) {
+      const material = MaterialManager.getMaterial(this._materialName);
+      if (material.diffuseTexture.isLoaded) {
+        if (AssetManager.isAssetLoaded(material.diffuseTextureName)) {
+          this._assetHeight = material.diffuseTexture.height;
+          this._assetWidth = material.diffuseTexture.width;
+
+          this._assetLoaded = true;
+          this.calculateUVs();
+        }
+      }
     }
   }
 }

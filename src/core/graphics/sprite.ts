@@ -45,6 +45,14 @@ export class Sprite {
     this._origin = value;
   }
 
+  public get width(): number {
+    return this._width;
+  }
+
+  public get height(): number {
+    return this._height;
+  }
+
   public destroy(): void {
     this._buffer.destroy();
     MaterialManager.releaseMaterial(this._materialName);

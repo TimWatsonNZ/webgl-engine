@@ -1,6 +1,7 @@
 import { CollisionComponent } from "../components/collisionComponent";
+import { Message } from "../message/message";
 
-class CollisionData {
+export class CollisionData {
   public a: CollisionComponent;
   public b: CollisionComponent;
   public time: number;
@@ -47,8 +48,9 @@ export class CollisionManager {
 
         if (comp === other) continue;
 
+        if (comp.isStatic && other.isStatic) continue;
+
         if (comp.shape.intersects(other.shape)) {
-          console.log("Collision");
 
           let exists = false;
           for (let d = 0;d < CollisionManager._collisionData.length; ++d) {
@@ -69,6 +71,9 @@ export class CollisionManager {
             const col = new CollisionData(CollisionManager._totalTime, comp, other);
             comp.onCollisionEntry(other);
             other.onCollisionEntry(comp);
+
+            Message.sendPriority("COLLISION_ENTRY:" + comp.name, this, col);
+            Message.sendPriority("COLLISION_ENTRY:" + other.name, this, col);
             this._collisionData.push(col);
           }
         }
@@ -78,17 +83,21 @@ export class CollisionManager {
     const removeData: CollisionData[] = [];
     for (let d = 0;d < CollisionManager._collisionData.length; ++d) {
       const data = CollisionManager._collisionData[d];
+
       if (data.time !== CollisionManager._totalTime) {
         removeData.push(data);
-        data.a.onCollisionExit(data.b);
-        data.b.onCollisionExit(data.a);
       }
     }
 
     while (removeData.length !== 0) {
+      const data = removeData.shift();
       const index = CollisionManager._collisionData.indexOf(removeData[0]);
       CollisionManager._collisionData.splice(index, 1);
-      removeData.shift();
+      
+      data.a.onCollisionExit(data.b);
+      data.b.onCollisionExit(data.a);
+      Message.sendPriority("COLLISION_ENTRY:" + data.a.name, this, data);
+      Message.sendPriority("COLLISION_ENTRY:" + data.b.name, this, data);
     }
 
     document.title = CollisionManager._collisionData.length.toString();

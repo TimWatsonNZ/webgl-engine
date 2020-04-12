@@ -49,7 +49,7 @@ export abstract class Shader {
 
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
-    const error = gl.getShaderInfoLog(shader);
+    const error = gl.getShaderInfoLog(shader).trim();
 
     if (error !== "") {
       throw new Error(`Error compiling shader ${this._name}: ${error}`);
@@ -66,7 +66,7 @@ export abstract class Shader {
 
     gl.linkProgram(this._program);
 
-    const error = gl.getProgramInfoLog(this._program);
+    const error = gl.getProgramInfoLog(this._program).trim();
     
     if (error !== "") {
       throw new Error(`Error linking shader ${this._name}: ${error}`);

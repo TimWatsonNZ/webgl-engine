@@ -1,3 +1,5 @@
+import { Vector3 } from "./vector3";
+
 export class Vector2 {
   private _x: number;
   private _y: number;
@@ -31,6 +33,15 @@ export class Vector2 {
     return new Vector2(1,1);
   }
 
+  public set(x?: number, y?: number): void {
+    if (x !== undefined) {
+      this._x = x;
+    }
+    if (y !== undefined) {
+      this._y = y;
+    }
+  }
+
   public copyFrom(v: Vector2): void {
     this.x = v.x;
     this.y = v.y;
@@ -48,6 +59,10 @@ export class Vector2 {
 
   public toFloat32Array(): Float32Array {
     return new Float32Array(this.toFloat32Array());
+  }
+
+  public toVector3(): Vector3 {
+    return new Vector3(this._x, this._y, 0);
   }
 
   public setFromJson(json: any): void {
@@ -84,6 +99,13 @@ export class Vector2 {
     this._x /= v._x;
     this._y /= v._y;
     
+    return this;
+  }
+
+  public scale(scale: number): Vector2 {
+    this._x *= scale;
+    this._y *= scale;
+
     return this;
   }
 

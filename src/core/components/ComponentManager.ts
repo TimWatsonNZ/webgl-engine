@@ -13,7 +13,6 @@ export class ComponentManager {
 
   public static extractComponent(json: any): IComponent {
     if (json.type !== undefined) {
-
       if (ComponentManager._registeredBuilders[json.type] !== undefined) {
         return ComponentManager._registeredBuilders[String(json.type)].buildFromJson(json);
       }

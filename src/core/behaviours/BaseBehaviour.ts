@@ -17,6 +17,11 @@ export abstract class BaseBehaviour implements IBehaviour {
     this._owner = owner;
   }
 
+  
+  public updateReady(): void {
+
+  }
+
   public update(time: number): void {
     
   }

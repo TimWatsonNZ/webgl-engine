@@ -127,6 +127,14 @@ export class Vector3 {
     return this;
   }
 
+  public scale(scale: number): Vector3 {
+    this._x *= scale;
+    this._y *= scale;
+    this._z *= scale;
+
+    return this;
+  }
+
   public clone(): Vector3 {
     return new Vector3(this._x, this._y, this._z);
   }

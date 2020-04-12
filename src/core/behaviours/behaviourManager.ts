@@ -2,6 +2,8 @@ import { IBehaviourBuilder } from "./IBehaviourBuilder";
 import { IBehaviour } from "./IBehaviour";
 import { RotationBehaviourBuilder } from "./rotationBehaviour";
 import { KeyboardMovementBehaviourBuilder } from "./keyboardMovementBehaviour";
+import { PlayerBehaviourBuilder } from "./playerBehaviour";
+import { ScrollBehaviourBuilder } from "./scrollBehaviour";
 
 export class BehaviourManager {
   private static _registeredBuilders: { [key: string]: IBehaviourBuilder } = {};
@@ -23,3 +25,5 @@ export class BehaviourManager {
 
 BehaviourManager.registerBuilder(new RotationBehaviourBuilder());
 BehaviourManager.registerBuilder(new KeyboardMovementBehaviourBuilder());
+BehaviourManager.registerBuilder(new PlayerBehaviourBuilder());
+BehaviourManager.registerBuilder(new ScrollBehaviourBuilder());

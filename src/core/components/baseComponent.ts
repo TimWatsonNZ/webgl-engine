@@ -1,8 +1,9 @@
 import { SimObject } from "../world/simObject";
 import { Shader } from "../gl/shaders/shader";
 import { IComponentData } from "./IComponentData";
+import { IComponent } from "./IComponent";
 
-export abstract class BaseComponent {
+export abstract class BaseComponent implements IComponent {
   public name: string;
   protected _owner: SimObject;
   protected _data: IComponentData;
@@ -22,6 +23,10 @@ export abstract class BaseComponent {
 
   public load(): void {
     
+  }
+  
+  public updateReady(): void {
+
   }
 
   public update(time: number): void {
