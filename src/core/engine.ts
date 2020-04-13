@@ -12,6 +12,7 @@ import { Message } from "./message/message";
 import { IMessageHandler } from "./message/IMessageHandler";
 import { AudioManager } from "./audio/audioManager";
 import { CollisionManager } from "./collision/collisionManager";
+import { BitmapFontManager } from "./graphics/bitmapFontManager";
 
 export class Engine implements IMessageHandler {
   private _canvas: HTMLCanvasElement;
@@ -50,6 +51,9 @@ export class Engine implements IMessageHandler {
     this._basicShader = new BasicShader();
     this._basicShader.use();
 
+    BitmapFontManager.addFont('default', 'fonts/text.txt');
+    BitmapFontManager.load();
+
     MaterialManager.registerMaterial(new Material('bg', 'textures/bg.png', Color.white()));
     MaterialManager.registerMaterial(new Material('end', 'textures/end.png', Color.white()));
     MaterialManager.registerMaterial(new Material('middle', 'textures/middle.png', Color.white()));
@@ -65,11 +69,9 @@ export class Engine implements IMessageHandler {
       0, this._canvas.width, this._canvas.height, 0, -100.0, 100
     );
 
-    global.Message = Message;
-    ZoneManager.changeZone(0);
-
     this.resize();
-    this.loop();
+    
+    this.preloading();
   }
 
   public resize() {
@@ -100,6 +102,19 @@ export class Engine implements IMessageHandler {
     requestAnimationFrame(this.loop.bind(this));
   }
 
+  private preloading(): void {
+    MessageBus.update(0);
+
+    if (!BitmapFontManager.updateReady()) {
+      requestAnimationFrame(this.preloading.bind(this));
+      return;
+    }
+
+    ZoneManager.changeZone(0);
+
+    this.loop();
+  }
+
   private update(): void {
     const delta = performance.now() - this._previousTime;
     MessageBus.update(delta);
@@ -115,6 +130,5 @@ export class Engine implements IMessageHandler {
 
     const projectionPosition = this._basicShader.getUniformLocation('u_projection');
     gl.uniformMatrix4fv(projectionPosition, false, new Float32Array(this._projection.data));
-    
   }
 }

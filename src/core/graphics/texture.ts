@@ -22,8 +22,6 @@ export class Texture implements IMessageHandler{
 
     this._handle = gl.createTexture();
 
-    Message.subscribe(MESSAGE_ASSET_LOADER_ASSET_LOADED + this._name, this);
-
     this.bind();
 
     gl.texImage2D(gl.TEXTURE_2D, LEVEL, gl.RGBA, 1, 1, BORDER, gl.RGBA, gl.UNSIGNED_BYTE, TEMP_IMAGE_DATA);
@@ -32,6 +30,8 @@ export class Texture implements IMessageHandler{
 
     if (asset !== undefined) {
       this.loadTextureFromAsset(asset);
+    } else {
+      Message.subscribe(MESSAGE_ASSET_LOADER_ASSET_LOADED + this._name, this);
     }
   }
 
