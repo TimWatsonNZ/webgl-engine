@@ -14,9 +14,12 @@ import { Vector3 } from "../math/vector3";
 export class PlayerBehaviourData implements IBehaviourData {
   public name: string;
   public acceleration: Vector2 = new Vector2(0, 920);
+
   public playerCollisionComponent: string;
   public groundCollisionComponent: string;
   public animatedSpriteName: string;
+
+  public scoreCollisionComponent: string;
 
   public setFromJson(json: any): void {
     if (json.name === undefined) {
@@ -48,6 +51,12 @@ export class PlayerBehaviourData implements IBehaviourData {
     }
 
     this.animatedSpriteName = String(json.animatedSpriteName);
+
+    if (json.scoreCollisionComponent === undefined) {
+      throw new Error(`scoreCollisionComponent must be defined in PlayerBehaviorData.`);
+    }
+
+    this.scoreCollisionComponent = String(json.scoreCollisionComponent);
   }
 }
 
@@ -71,12 +80,18 @@ export class PlayerBehaviour extends BaseBehaviour implements IMessageHandler{
 
   private _playerCollisionComponent: string;
   private _groundCollisionComponent: string;
+  private _scoreCollisionComponent: string;
+
   private _animatedSpriteName: string;
 
   private _sprite: AnimatedSpriteComponent;
 
   private _isPlaying: boolean = false;
   private _initialPosition: Vector3 = Vector3.zero;
+
+  private _score: number = 0;
+  private _highScore: number = 0;
+
   private _pipeNames: string[] = [
     "pipe1Collision_end",
     "pipe1Collision_middle_top",
@@ -90,13 +105,17 @@ export class PlayerBehaviour extends BaseBehaviour implements IMessageHandler{
     this._acceleration = data.acceleration;
     this._playerCollisionComponent = data.playerCollisionComponent;
     this._groundCollisionComponent = data.groundCollisionComponent;
+    this._scoreCollisionComponent = data.scoreCollisionComponent;
     this._animatedSpriteName = data.animatedSpriteName;
 
     Message.subscribe("MOUSE_DOWN", this);
-    Message.subscribe("COLLISION_ENTRY:" + this._playerCollisionComponent, this);
-   
+    Message.subscribe("COLLISION_ENTRY", this);
+    
+    Message.subscribe("GAME_READY", this);
     Message.subscribe("GAME_RESET", this);
     Message.subscribe("GAME_START", this);
+
+    Message.subscribe("PLAYER_DIED", this);
   }
 
   public updateReady(): void {
@@ -118,32 +137,60 @@ export class PlayerBehaviour extends BaseBehaviour implements IMessageHandler{
         this.onFlap();
         break;
       }
-      case "COLLISION_ENTRY:" + this._playerCollisionComponent: {
+      case "COLLISION_ENTRY": {
         const data: CollisionData = message.context as CollisionData;
+        if (data.a.name !== this._playerCollisionComponent &&
+          data.b.name !== this._playerCollisionComponent) {
+          return;
+        }
+
         if (data.a.name === this._groundCollisionComponent ||
           data.b.name === this._groundCollisionComponent) {
             this.die();
             this.decelerate();
-          }
-
-        if (this._pipeNames.indexOf(data.a.name) !== -1 ||
+          } else if (
+            this._pipeNames.indexOf(data.a.name) !== -1 ||
             this._pipeNames.indexOf(data.b.name) !== -1) {
-          this.die();
+            this.die();
+        } else if (
+          data.a.name === this._scoreCollisionComponent ||
+          data.b.name === this._scoreCollisionComponent) {
+          this.setScore(this._score + 1);
+          AudioManager.playSound('ting');
         }
         break;
       }
       case "GAME_RESET":
+        Message.send("GAME_HIDE", this);
+        Message.send("RESET_HIDE", this);
+        Message.send("SPLASH_HIDE", this);
+        Message.send("TUTORIAL_SHOW", this);
         this.reset();
         break;
       case "GAME_START": {
+        Message.send("GAME_SHOW", this);
+        Message.send("RESET_HIDE", this);
+        Message.send("SPLASH_HIDE", this);
+        Message.send("TUTORIAL_HIDE", this);
+        this._isPlaying = true;
+        this._isAlive = true;
         this.start();
         break;
       }
+      case "GAME_READY": {
+        Message.send("RESET_HIDE", this);
+        Message.send("TUTORIAL_HIDE", this);
+        Message.send("GAME_HIDE", this);
+        Message.send("SPLASH_SHOW", this);
+        break;
+      }
+      case "PLAYER_DIED":
+        Message.send("RESET_SHOW", this);
+        break;
     }
   }
 
   public update(time: number): void {
-
     const seconds: number = time / 1000;
     if (this._isPlaying) this._velocity.add(this._acceleration.clone().scale(seconds));
 
@@ -188,7 +235,7 @@ export class PlayerBehaviour extends BaseBehaviour implements IMessageHandler{
   }
 
   private shouldNotFlap(): boolean {
-    return this._isPlaying || this._velocity.y > 220.0 || !this._isAlive;
+    return !this._isPlaying || this._velocity.y > 220.0 || !this._isAlive;
   }
 
   private die(): void {
@@ -205,6 +252,7 @@ export class PlayerBehaviour extends BaseBehaviour implements IMessageHandler{
     this._isPlaying = false;
     this._sprite.owner.transform.position.copyFrom(this._initialPosition);
     this._sprite.owner.transform.rotation.z = 0;
+    this.setScore(0);
 
     this._velocity.set(0, 0);
     this._acceleration.set(0, 920);
@@ -228,12 +276,14 @@ export class PlayerBehaviour extends BaseBehaviour implements IMessageHandler{
     }
   }
 
-  private onRestart(y: number): void {
-    this._owner.transform.rotation.z = 0;
-    this._owner.transform.position.set(33, y);
-    this._velocity.set(0,0);
-    this._acceleration.set(0, 920);
-    this._isAlive = true;
-    this._sprite.play();
+  private setScore(score: number): void {
+    this._score = score;
+    Message.send("counterText:SetText", this, this._score);
+    Message.send("scoreText:SetText", this, this._score);
+
+    if (score > this._highScore) {
+      this._highScore = score;
+      Message.send('bestText:SetText', this, this._highScore);
+    }
   }
 }

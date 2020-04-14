@@ -4,6 +4,8 @@ import { RotationBehaviourBuilder } from "./rotationBehaviour";
 import { KeyboardMovementBehaviourBuilder } from "./keyboardMovementBehaviour";
 import { PlayerBehaviourBuilder } from "./playerBehaviour";
 import { ScrollBehaviourBuilder } from "./scrollBehaviour";
+import { VisibilityOnMessageBehaviourBuilder } from "./visibilityOnMessageBehaviour";
+import { MouseClickBehaviourBuilder } from "./mouseClickBehaviour";
 
 export class BehaviourManager {
   private static _registeredBuilders: { [key: string]: IBehaviourBuilder } = {};
@@ -27,3 +29,5 @@ BehaviourManager.registerBuilder(new RotationBehaviourBuilder());
 BehaviourManager.registerBuilder(new KeyboardMovementBehaviourBuilder());
 BehaviourManager.registerBuilder(new PlayerBehaviourBuilder());
 BehaviourManager.registerBuilder(new ScrollBehaviourBuilder());
+BehaviourManager.registerBuilder(new VisibilityOnMessageBehaviourBuilder());
+BehaviourManager.registerBuilder(new MouseClickBehaviourBuilder());

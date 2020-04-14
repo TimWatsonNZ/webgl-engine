@@ -57,7 +57,7 @@ export class CollisionManager {
             const data = CollisionManager._collisionData[d];
 
             if (
-               ( data.a === comp && data.b === other) ||
+               (data.a === comp && data.b === other) ||
                (data.a === other && data.b === comp)) {
                  comp.onCollisionUpdate(other);
                  other.onCollisionUpdate(comp);
@@ -72,8 +72,7 @@ export class CollisionManager {
             comp.onCollisionEntry(other);
             other.onCollisionEntry(comp);
 
-            Message.sendPriority("COLLISION_ENTRY:" + comp.name, this, col);
-            Message.sendPriority("COLLISION_ENTRY:" + other.name, this, col);
+            Message.sendPriority("COLLISION_ENTRY", this, col);
             this._collisionData.push(col);
           }
         }
@@ -96,8 +95,7 @@ export class CollisionManager {
       
       data.a.onCollisionExit(data.b);
       data.b.onCollisionExit(data.a);
-      Message.sendPriority("COLLISION_ENTRY:" + data.a.name, this, data);
-      Message.sendPriority("COLLISION_ENTRY:" + data.b.name, this, data);
+      Message.sendPriority("COLLISION_EXIT", undefined, data);
     }
 
     document.title = CollisionManager._collisionData.length.toString();

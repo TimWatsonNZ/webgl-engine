@@ -6,8 +6,12 @@ class GlUtilities {
       canvas = document.getElementById(elementId) as HTMLCanvasElement;
 
     } else {
+      const div = document.createElement('div');
+      div.id = 'gameArea';
       canvas = document.createElement('canvas');
-      document.body.append(canvas);
+
+      div.appendChild(canvas);
+      document.body.append(div);
     }
 
     gl = canvas.getContext('webgl');

@@ -31,8 +31,9 @@ export class InputManager {
 
   private static _leftDown: boolean;
   private static _rightDown: boolean;
+  private static _resolutionScale: Vector2 = Vector2.one
 
-  public static initialize(): void {
+  public static initialize(viewPort: HTMLCanvasElement): void {
     for (let i = 0; i< 255;i++) {
       InputManager._keys[i] = false;
     }
@@ -40,9 +41,9 @@ export class InputManager {
     window.addEventListener('keydown', InputManager.onKeyDown);
     window.addEventListener('keyup', InputManager.onKeyUp);
 
-    window.addEventListener('mousemove', InputManager.onMouseMove);
-    window.addEventListener('mousedown', InputManager.onMouseDown);
-    window.addEventListener('mouseup', InputManager.onMouseUp);
+    viewPort.addEventListener('mousemove', InputManager.onMouseMove);
+    viewPort.addEventListener('mousedown', InputManager.onMouseDown);
+    viewPort.addEventListener('mouseup', InputManager.onMouseUp);
   }
 
   public static isKeyDown(key: Keys): boolean {
@@ -75,6 +76,10 @@ export class InputManager {
 
     InputManager._mouseX = event.clientX;
     InputManager._mouseY = event.clientY;
+
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    InputManager._mouseX = (event.clientX - Math.round(rect.left)) * (1 / InputManager._resolutionScale.x);
+    InputManager._mouseY = (event.clientY - Math.round(rect.top)) * (1 / InputManager._resolutionScale.y);
   }
 
   private static onMouseDown(event: MouseEvent): void {
@@ -95,5 +100,9 @@ export class InputManager {
     }
 
     Message.send('MOUSE_UP', this, new MouseContext(InputManager._leftDown, InputManager._rightDown, InputManager.getMousePosistion()));
+  }
+
+  public static setResolutionScale(scale: Vector2): void {
+    InputManager._resolutionScale.copyFrom(scale);
   }
 }

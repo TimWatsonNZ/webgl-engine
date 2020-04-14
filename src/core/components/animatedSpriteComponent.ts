@@ -3,7 +3,7 @@ import { BaseComponent } from "./baseComponent";
 import { Shader } from "../gl/shaders/shader";
 import { IComponentBuilder } from "./IComponentBuilder";
 import { SpriteComponentData } from "./spriteComponent";
-import { AnimatedSprite } from "../graphics/animatedSprite";
+import { AnimatedSprite, AnimatedSpriteInfo } from "../graphics/animatedSprite";
 import { Vector3 } from "../math/vector3";
 
 export class AnimatedSpriteComponentData extends SpriteComponentData {
@@ -13,6 +13,7 @@ export class AnimatedSpriteComponentData extends SpriteComponentData {
   public frameCount: number;
   public frameSequence: number[];
   public autoPlay: boolean = true;
+  public frameTime: number = 33;
 
   public setFromJson(json: any): void {
     super.setFromJson(json);
@@ -44,6 +45,10 @@ export class AnimatedSpriteComponentData extends SpriteComponentData {
     } else {
       this.frameSequence = json.frameSequence;
     }
+  
+    if (json.frameTime !== undefined) {
+      this.frameTime = Number(json.frameTime);
+    }
   }
 }
 
@@ -69,16 +74,18 @@ export class AnimatedSpriteComponent extends BaseComponent{
     super(data);
 
     this._autoPlay = data.autoPlay;
-    this._sprite = new AnimatedSprite(
-      name,
-      data.materialName,
-      data.frameWidth,
-      data.frameHeight,
-      data.frameWidth,
-      data.frameHeight,
-      data.frameCount,
-      data.frameSequence
-    );
+    const spriteInfo = new AnimatedSpriteInfo();
+    
+    spriteInfo.name = data.name;
+    spriteInfo.materialName  = data.materialName;
+    spriteInfo.frameWidth    = data.frameWidth;
+    spriteInfo.frameHeight   = data.frameHeight;
+    spriteInfo.width    = data.frameWidth;
+    spriteInfo.height   = data.frameHeight;
+    spriteInfo.frameCount    = data.frameCount;
+    spriteInfo.frameSequence =  data.frameSequence;
+    spriteInfo.frameTime =  data.frameTime;
+    this._sprite = new AnimatedSprite(spriteInfo);
     
     if (!data.origin.equals(Vector3.zero)) {
       this._sprite.origin.copyFrom(data.origin);

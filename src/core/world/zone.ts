@@ -111,9 +111,9 @@ export class Zone {
       }
     }
     
-    if (dataSection.behaviours !== undefined) {
-      for (let b in dataSection.behaviours) {
-        const data = dataSection.behaviours[b];
+    if (dataSection.behaviors !== undefined) {
+      for (let b in dataSection.behaviors) {
+        const data = dataSection.behaviors[b];
         const behaviour = BehaviourManager.extractBehaviour(data);
         simObject.addBehaviour(behaviour);
       }

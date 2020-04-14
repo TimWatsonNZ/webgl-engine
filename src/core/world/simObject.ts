@@ -21,6 +21,7 @@ export class SimObject {
   public name: string;
 
   public transform: Transform = new Transform();
+  private _isVisible: boolean = true;
 
   public constructor(id: number, name: string, scene?: Scene) {
     this._id = id;
@@ -38,6 +39,14 @@ export class SimObject {
 
   public get isLoaded(): boolean {
     return this._isLoaded;
+  }
+
+  public get isVisible(): boolean {
+    return this._isVisible;
+  }
+
+  public set isVisible(value: boolean) {
+    this._isVisible = value;
   }
 
   public get worldMatrix(): Matrix4x4 {
@@ -162,6 +171,10 @@ export class SimObject {
   }
 
   public render(shader: Shader): void {
+    if (!this._isVisible) {
+      return
+    }
+
     for (let c of this._components) {
       c.render(shader);
     }

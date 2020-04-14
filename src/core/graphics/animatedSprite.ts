@@ -16,6 +16,20 @@ class UVInfo {
   }
 }
 
+export class AnimatedSpriteInfo {
+  public name: string;
+  public materialName: string;
+  public width: number;
+  public height: number;
+
+  public frameWidth: number;
+  public frameHeight: number;
+  public frameCount: number;
+  public frameSequence: number[];
+
+  public frameTime: number = 33;
+}
+
 export class AnimatedSprite extends Sprite implements IMessageHandler {
   private _frameWidth: number;
   private _frameHeight: number;
@@ -33,22 +47,14 @@ export class AnimatedSprite extends Sprite implements IMessageHandler {
 
   private _isPlaying: boolean = true;
 
-  constructor(
-    name: string,
-    materialName: string,
-    width: number = 100,
-    height: number = 100,
-    frameWidth: number = 10,
-    frameHeight: number = 10,
-    frameCount: number = 1,
-    frameSequence: number[] = []
-    ) {
-    super(name, materialName, width, height);
+  constructor(info: AnimatedSpriteInfo) {
+    super(info.name, info.materialName, info.width, info.height);
     
-    this._frameWidth = frameWidth;
-    this._frameHeight = frameHeight;
-    this._frameCount = frameCount;
-    this._frameSequence = frameSequence;
+    this._frameWidth = info.frameWidth;
+    this._frameHeight = info.frameHeight;
+    this._frameCount = info.frameCount;
+    this._frameSequence = info.frameSequence;
+    this._frameTime = info.frameTime;
 
     Message.subscribe(MESSAGE_ASSET_LOADER_ASSET_LOADED + this._material.diffuseTextureName, this);
   }

@@ -5,6 +5,8 @@ import { IComponent } from "./IComponent";
 import { BaseComponent } from "./baseComponent";
 import { BitmapText } from "../graphics/bitmapText";
 import { Shader } from "../gl/shaders/shader";
+import { Message } from "../message/message";
+import { IMessageHandler } from "../message/IMessageHandler";
 
 export class BitmapTextComponentData implements IComponentData{
   public name: string;
@@ -44,7 +46,7 @@ export class BitmapTextComponentBuilder implements IComponentBuilder {
   }
 }
 
-export class BitmapTextComponent extends BaseComponent {
+export class BitmapTextComponent extends BaseComponent implements IMessageHandler {
   private _bitmapText: BitmapText;
   private _fontName: string;
 
@@ -58,6 +60,8 @@ export class BitmapTextComponent extends BaseComponent {
       this._bitmapText.origin.copyFrom(data.origin);
     }
     this._bitmapText.text = data.text;
+
+    Message.subscribe(`${this.name}:SetText`, this);
   }
 
   public load(): void {
@@ -71,5 +75,11 @@ export class BitmapTextComponent extends BaseComponent {
   public render(shader: Shader): void {
     this._bitmapText.draw(shader, this.owner.worldMatrix);
     super.render(shader)
+  }
+  
+  onMessage(message: Message): void {
+    if (message.code === `${this.name}:SetText`) {
+      this._bitmapText.text = String(message.context);
+    }
   }
 }

@@ -13,6 +13,7 @@ import { IMessageHandler } from "./message/IMessageHandler";
 import { AudioManager } from "./audio/audioManager";
 import { CollisionManager } from "./collision/collisionManager";
 import { BitmapFontManager } from "./graphics/bitmapFontManager";
+import { Vector2 } from "./math/vector2";
 
 export class Engine implements IMessageHandler {
   private _canvas: HTMLCanvasElement;
@@ -22,6 +23,9 @@ export class Engine implements IMessageHandler {
 
   private _gameWidth: number;
   private _gameHeight: number;
+
+  private _isFirstUpdate: boolean = true;
+  private _aspect: number;
   
   constructor(width?: number, height?: number) {
     this._gameWidth = width;
@@ -32,15 +36,12 @@ export class Engine implements IMessageHandler {
     this._canvas = GlUtilities.initialize();
 
     if (this._gameWidth && this._gameHeight) {
-      this._canvas.style.width = this._gameWidth + 'px';
-      this._canvas.style.height = this._gameHeight + 'px';
-      this._canvas.width = this._gameWidth;
-      this._canvas.height = this._gameHeight;
+      this._aspect = this._gameWidth / this._gameHeight;
     }
 
     ZoneManager.initialize();
     AssetManager.initialize();
-    InputManager.initialize();
+    InputManager.initialize(this._canvas);
 
     Message.subscribe('MOUSE_UP', this);
 
@@ -61,6 +62,12 @@ export class Engine implements IMessageHandler {
     MaterialManager.registerMaterial(new Material('grass', 'textures/grass.png', Color.white()));
     MaterialManager.registerMaterial(new Material('duck', 'textures/duck.png', Color.white()));
     
+    MaterialManager.registerMaterial(new Material('playbtn', 'textures/playbtn.png', Color.white()));
+    MaterialManager.registerMaterial(new Material('restartbtn', 'textures/restartbtn.png', Color.white()));
+    MaterialManager.registerMaterial(new Material('score', 'textures/score.png', Color.white()));
+    MaterialManager.registerMaterial(new Material('title', 'textures/title.png', Color.white()));
+    MaterialManager.registerMaterial(new Material('tutorial', 'textures/tutorial.png', Color.white()));
+    
     AudioManager.loadSoundFile('flap', 'sounds/flap.mp3', false);
     AudioManager.loadSoundFile('ting', 'sounds/ting.mp3', false);
     AudioManager.loadSoundFile('dead', 'sounds/dead.mp3', false);
@@ -79,13 +86,41 @@ export class Engine implements IMessageHandler {
       if (this._gameWidth === undefined || this._gameHeight === undefined) {
         this._canvas.width = window.innerWidth;
         this._canvas.height = window.innerHeight;
-      }
-      
 
-      this._projection = Matrix4x4.orthographic(
-        0, this._canvas.width, this._canvas.height, 0, -100.0, 100
-      );
-      gl.viewport(-1, 1, this._canvas.width, this._canvas.height);
+        gl.viewport(0, 0, window.innerWidth, window.innerHeight);
+        this._projection = Matrix4x4.orthographic(
+          0, window.innerWidth, window.innerHeight, 0, -100.0, 100
+        );
+      } else {
+        let newWidth = window.innerWidth;
+        let newHeight = window.innerHeight;
+        const newWidthToHeight = newWidth/newHeight;
+        const gameArea = document.getElementById('gameArea');
+
+        if (newWidthToHeight > this._aspect) {
+          newWidth = newHeight * this._aspect;
+          gameArea.style.height = newHeight + 'px';
+          gameArea.style.width = newWidth + 'px';
+        } else {
+          newHeight = newWidth / this._aspect;
+          gameArea.style.height = newHeight + 'px';
+          gameArea.style.width = newWidth + 'px';
+        }
+
+        gameArea.style.marginTop = (-newHeight / 2) + 'px';
+        gameArea.style.marginLeft = (-newWidth / 2) + 'px';
+
+        this._canvas.width = newWidth;
+        this._canvas.height = newHeight;
+
+        gl.viewport(0, 0, newWidth, newHeight);
+        this._projection = Matrix4x4.orthographic(
+          0, this._gameWidth, this._gameHeight, 0, -100.0, 100
+        );
+
+        const resolutionScale = new Vector2(newWidth / this._gameWidth, newHeight / this._gameHeight);
+        InputManager.setResolutionScale(resolutionScale)
+      }
     }
   }
 
@@ -96,6 +131,9 @@ export class Engine implements IMessageHandler {
   }
 
   private loop(): void {
+    if (this._isFirstUpdate) {
+
+    }
     this.update();
     this.render();
 

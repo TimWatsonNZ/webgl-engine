@@ -4,6 +4,7 @@ import { BaseBehaviour } from "./BaseBehaviour";
 import { IMessageHandler } from "../message/IMessageHandler";
 import { IBehaviourBuilder } from "./IBehaviourBuilder";
 import { Message } from "../message/message";
+import { throws } from "assert";
 
 export class ScrollBehaviourData implements IBehaviourData{
   public name: string;
@@ -14,6 +15,9 @@ export class ScrollBehaviourData implements IBehaviourData{
   public startMessage: string;
   public stopMessage: string;
   public resetMessage: string;
+
+  public minResetY: number;
+  public maxResetY: number;
   
   public setFromJson(json: any): void {
     if (json.name === undefined) {
@@ -51,6 +55,14 @@ export class ScrollBehaviourData implements IBehaviourData{
     } else {
       throw new Error(`ScrollBehaviourData requires property 'resetPosition' to be defined.`)
     }
+
+    if (json.minResetY !== undefined) {
+      this.minResetY = json.minResetY;
+    }
+
+    if (json.maxResetY !== undefined) {
+      this.maxResetY = json.maxResetY;
+    }
   }
 }
 
@@ -71,6 +83,9 @@ export class ScrollBehaviour extends BaseBehaviour implements IMessageHandler {
   private _minPosition: Vector2 = Vector2.zero;
   private _resetPosition: Vector2 = Vector2.zero;
 
+  private _minResetY: number;
+  private _maxResetY: number;
+
   private _startMessage: string;
   private _stopMessage: string;
   private _resetMessage: string;
@@ -88,6 +103,14 @@ export class ScrollBehaviour extends BaseBehaviour implements IMessageHandler {
     this._startMessage = data.startMessage;
     this._stopMessage = data.stopMessage;
     this._resetMessage = data.resetMessage;
+
+    if (data.minResetY !== undefined) {
+      this._minResetY = data.minResetY;
+    }
+    
+    if (data.maxResetY !== undefined) {
+      this._maxResetY = data.maxResetY;
+    }
   }
 
   public updateReady(): void {
@@ -113,9 +136,12 @@ export class ScrollBehaviour extends BaseBehaviour implements IMessageHandler {
       this._owner.transform.position.add(this._velocity.clone().scale(time/1000).toVector3());
     }
 
+    const scrollY = this._minResetY !== undefined && this._maxResetY !== undefined;
+
     if (this._owner.transform.position.x <= this._minPosition.x &&
-        this._owner.transform.position.y <= this._minPosition.y) {
-          this.reset();
+        this._owner.transform.position.y <= this._minPosition.y &&
+        (scrollY || (!scrollY && this._owner.transform.position.y <= this._minPosition.y))) {
+      this.reset();
     }
   }
 
@@ -134,13 +160,20 @@ export class ScrollBehaviour extends BaseBehaviour implements IMessageHandler {
   }
 
   private reset(): void {
-    this._owner.transform.position.copyFrom(this._resetPosition.toVector3());
+    if (this._minResetY !== undefined && this._maxResetY !== undefined) {
+      this._owner.transform.position.set(this._resetPosition.x, this.getRandomY());
+    } else {
+      this._owner.transform.position.copyFrom(this._resetPosition.toVector3());
+    }
+    
   }
 
   private initial(): void {
     this._owner.transform.position.copyFrom(this._initialPosition.toVector3());
   }
 
-
+  private getRandomY(): number {
+    return Math.floor( Math.random() * -10);
+  }
   
 }
